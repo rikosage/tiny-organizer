@@ -1,0 +1,39 @@
+<!-- Modal Structure -->
+<div data-source="import" id="modal-settings" class="modal modal-fixed-footer">
+    <div class="modal-content">
+        <div class="row settings-color-item">
+            <h4 class="center">Настройки редактора</h4>
+            <div class="col s6 center">
+                <strong>Фон</strong>
+                <div v-for="type in settings.backgrounds" class="col s12">
+                    <ul class="collection">
+                        <li
+                        v-for="color in type"
+                        v-bind:class="[color, {'z-depth-3 action' : color==settings.editor.background}]"
+                        v-on:click="setBackground(color)"
+                        class="collection-item">
+                            {{color}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col s6 center">
+                <strong>Текст</strong>
+                <div v-for="type in settings.textColors" class="col s12">
+                    <ul class="collection">
+                        <li
+                        v-for="color in type"
+                        v-bind:class="[color, {'z-depth-3 action' : color==settings.editor.textColor}]"
+                        v-on:click="setTextColor(color)"
+                        class="collection-item">
+                            {{color}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+       <a href="#!" class="modal-action modal-close waves-effect waves-green btn">Готово</a>
+    </div>
+</div>

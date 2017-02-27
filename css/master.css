@@ -1,0 +1,40 @@
+body{
+    width: 100%;
+    overflow: hidden;
+}
+
+textarea#editor{
+    min-height: 65vh;
+    max-height: 65vh;
+    overflow: auto;
+    font-size: 17px;
+}
+
+#vue-application{
+    height: 100vh;
+    overflow: hidden;
+}
+
+.content{
+    height: 75vh;
+    overflow: auto;
+}
+
+.settings-color-item .collection-item{
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+.settings-color-item .collection-item.action{
+    text-decoration: underline;
+    font-size: 1.3em;
+    margin: 15px 0;
+}
+
+.input-field.non-margin-top{
+    margin-top: 0;
+}
+
+.card{
+    cursor: pointer;
+}

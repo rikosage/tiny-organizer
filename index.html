@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Organizer</title>
+    <meta charset="utf-8"></meta>
+    <script>window.$ = window.jQuery = require('jquery');</script>
+    <script>window.Hammer = require('hammerjs');</script>
+    <script src="bower_components/vue/dist/vue.min.js"></script>
+    <link href="http://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="lib/materialize/css/materialize.min.css">
+    <link rel="stylesheet" href="css/master.css">
+
+    <link rel="import" href="partial/header.html">
+    <link rel="import" href="partial/settings.html">
+
+    <link rel="import" href="views/editor.html">
+    <link rel="import" href="views/execute.html">
+
+    <link rel="import" href="views/forms/settings.html">
+</head>
+<body>
+    <div class = "grey-blue lighten-5" id="vue-application" class = "row">
+
+    </div>
+    <script src="lib/materialize/js/materialize.min.js"></script>
+    <script type = "text/javascript">
+      document.querySelectorAll('link[rel=import]').forEach((item) => {
+          let content = item.import.querySelector("div[data-source=import]");
+          document.querySelector("#vue-application").appendChild(content.cloneNode(true));
+      });
+    </script>
+    <script src="js/class-colors.js"></script>
+    <script src="js/vue-application.js"></script>
+</body>
+</html>
