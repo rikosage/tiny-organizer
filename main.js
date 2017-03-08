@@ -12,6 +12,16 @@ db.loadDatabase();
 var mainWindow;
 const indexPage = `file://${__dirname}/index.html`;
 
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
+
 app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -19,10 +29,9 @@ app.on('window-all-closed', function() {
 });
 
 app.on('ready', function() {
-
   db.find({alias:"window"}, function(err, docs){
 
-    let size = docs[0];
+    let size = docs[0] ? docs[0] : {width: 800, height: 600};
 
     mainWindow = new BrowserWindow({
       width: size.width,
@@ -38,6 +47,7 @@ app.on('ready', function() {
     });
 
     mainWindow.on('resize', function(a){
+
       var width = mainWindow.getSize()[0];
       var height = mainWindow.getSize()[1];
 
@@ -54,11 +64,13 @@ app.on('ready', function() {
 });
 
 global.backend = {
+
   selectFile: (filters, callback) => {
     dialog.showOpenDialog({properties: ['openFile'], filters: filters}, (file) => {
       return callback(file);
     });
   },
+
   executeProcess: () => {
     let executablePath = "/usr/games/gnome-mines &";
     child(executablePath, ["--incognito"], function(err, data) {
@@ -66,6 +78,33 @@ global.backend = {
          console.error(err);
          return;
       }
+    });
+  },
+
+  saveProcess: (data, callback) => {
+    fs.readFile(data.image, (err, result) => {
+      var extension = data.image.split(".").pop();
+      var filePath = guid() + "." + extension;
+      fs.writeFile("./res/programs/" + filePath, result, (err) => {
+        if (!err) {
+          data.image = filePath;
+          backend.insert("process", data, () => {
+            backend.load("process").then(result => {
+              return callback(result);
+            });
+          });
+        }
+      });
+    });
+  },
+
+  deleteProcess: (processItem, callback) => {
+    db.remove({_id:processItem._id}, {}, () => {
+      fs.unlink("./res/programs/"+processItem.image, () => {
+        return backend.load("process").then(result => {
+          callback(result);
+        });
+      });
     });
   },
 

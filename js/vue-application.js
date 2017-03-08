@@ -27,9 +27,9 @@ var app = new Vue({
     inPut: {
       editorContent: null,
       newProcess: {
-        name: null,
-        image: null,
-        file: null,
+        name: "",
+        image: "",
+        file: "",
       },
     },
   },
@@ -63,12 +63,13 @@ var app = new Vue({
         instance.inPut.newProcess[attribute] = file[0];
       });
     },
+
     saveProcess: () => {
       if (!instance.inPut.newProcess.file.length) {
         alert("Файл не выбран");
         return false;
       }
-      if (!instance.inPut.newProcess.name.length) {
+      if (!instance.inPut.newProcess.image.length) {
         alert("Изображение не выбрано");
         return false;
       }
@@ -77,13 +78,18 @@ var app = new Vue({
         return false;
       }
 
-      backend.insert("process", instance.inPut.newProcess, (inserted) => {
-        backend.load("process").then(result => {
-          instance.processes = result;
-        });
-      })
+      backend.saveProcess(instance.inPut.newProcess, (result) => {
+        instance.processes = result;
+      });
 
     },
+
+    deleteProcess: (processItem) => {
+      backend.deleteProcess(processItem, (result) => {
+        instance.processes = result;
+      });
+    },
+
     writeEditor: () => {
       backend.update("editor", {content: instance.inPut.editorContent});
     },

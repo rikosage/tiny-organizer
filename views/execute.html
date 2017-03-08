@@ -3,7 +3,7 @@
         <div v-for="process in processes" class="col s6 m3 process-item">
             <div class="card grey lighten-3">
                 <div class="col s12 delete-process">
-                    <i class="material-icons right small">close</i>
+                    <i v-on:click="deleteProcess(process)" class="material-icons right small">close</i>
                 </div>
                 <div v-on:click="executeProcess" class="card-content hoverable">
                     <span class="card-title">
