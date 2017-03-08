@@ -15,6 +15,7 @@ var app = new Vue({
   data: {
     source: `${__dirname}/res/programs/04.jpg`,
     currentView: "editor",
+    processes: [],
     settings: {
       editor: {
         background: null,
@@ -25,6 +26,11 @@ var app = new Vue({
     },
     inPut: {
       editorContent: null,
+      newProcess: {
+        name: null,
+        image: null,
+        file: null,
+      },
     },
   },
   created: function(){
@@ -38,8 +44,46 @@ var app = new Vue({
     backend.load("settings-text-color").then(result => {
       instance.settings.editor.textColor = result[0].color;
     });
+    backend.load("process").then(result => {
+      instance.processes = result;
+    });
   },
   methods: {
+    selectFile: (imagesOnly = false, attribute = 'file') => {
+
+      if (imagesOnly) {
+        var filters = [
+          {name: "Images", extensions: ['jpg', 'png', 'gif']},
+        ];
+      } else {
+        var filters = null;
+      }
+
+      backend.selectFile(filters, (file) => {
+        instance.inPut.newProcess[attribute] = file[0];
+      });
+    },
+    saveProcess: () => {
+      if (!instance.inPut.newProcess.file.length) {
+        alert("Файл не выбран");
+        return false;
+      }
+      if (!instance.inPut.newProcess.name.length) {
+        alert("Изображение не выбрано");
+        return false;
+      }
+      if (!instance.inPut.newProcess.name.length) {
+        alert("Имя не выбрано");
+        return false;
+      }
+
+      backend.insert("process", instance.inPut.newProcess, (inserted) => {
+        backend.load("process").then(result => {
+          instance.processes = result;
+        });
+      })
+
+    },
     writeEditor: () => {
       backend.update("editor", {content: instance.inPut.editorContent});
     },
@@ -55,7 +99,7 @@ var app = new Vue({
       return color;
     },
     executeProcess: () => {
-      console.log("ok");
+      backend.executeProcess();
     },
   },
 });

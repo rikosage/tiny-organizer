@@ -38,3 +38,11 @@ textarea#editor{
 .card{
     cursor: pointer;
 }
+
+#modal-new-process .col.s12.hoverable{
+    cursor: pointer;
+}
+
+.col.delete-process{
+    padding: 0;
+}

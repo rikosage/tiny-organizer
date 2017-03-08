@@ -1,0 +1,23 @@
+<div data-source="import" id="modal-new-process" class="modal">
+    <div class="modal-content">
+      <h4 class="center">Новый элемент</h4>
+      <div class="input-field">
+          <input v-model="inPut.newProcess.name" id="new-process-name" type="text" />
+          <label for="new-process-name">Название</label>
+      </div>
+      <div class="row">
+          <div v-on:click="selectFile(true, 'image')" class="col s12 hoverable center indigo lighten-5">
+              <h5>Изображение</h5>
+          </div>
+      </div>
+      <div class="row">
+          <div v-on:click="selectFile(false)" class="col s12 hoverable center indigo lighten-5">
+              <h5>Выбрать на диске</h5>
+          </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <a v-on:click="saveProcess" href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+</div>

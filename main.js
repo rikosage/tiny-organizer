@@ -1,8 +1,9 @@
 const electron = require('electron')
-const {app, BrowserWindow} = electron;
+const {app, BrowserWindow, dialog} = electron;
 const windowStateKeeper = require('electron-window-state');
 var path = require('path');
 var fs = require("fs");
+var child = require('child_process').exec;
 
 var Datastore = require('nedb');
 var db = new Datastore({filename: 'database'});
@@ -53,6 +54,21 @@ app.on('ready', function() {
 });
 
 global.backend = {
+  selectFile: (filters, callback) => {
+    dialog.showOpenDialog({properties: ['openFile'], filters: filters}, (file) => {
+      return callback(file);
+    });
+  },
+  executeProcess: () => {
+    let executablePath = "/usr/games/gnome-mines &";
+    child(executablePath, ["--incognito"], function(err, data) {
+      if(err){
+         console.error(err);
+         return;
+      }
+    });
+  },
+
   load: (alias) => {
     return new Promise((resolve, reject) => {
       db.find({alias: alias}, function (err, docs) {
@@ -76,6 +92,13 @@ global.backend = {
         db.update({alias: alias}, Object.assign({alias:alias}, data));
       }
     })
+  },
 
+  insert: (alias, data, callback) => {
+    db.insert(Object.assign({alias:alias}, data), function(err, inserted){
+      if (!err) {
+        return callback(inserted);
+      }
+    });
   },
 };
