@@ -1,7 +1,7 @@
 <div data-source="import" v-if="currentView === 'execute'" class="content">
-    <div class="row">
+    <div class="row" v-if="processes.length !== 0">
         <transition-group name="list">
-        <div v-for="process in processes" class="col s6 m4 process-item" v-bind:key="process">
+        <div  v-for="process in processes" class="col s6 m4 l2 process-item" v-bind:key="process">
             <div class="card grey lighten-3 hoverable">
                 <div class="col s12 delete-process">
                     <i v-on:click="deleteProcess(process)" class="material-icons right small">close</i>
@@ -19,5 +19,8 @@
             </div>
          </div>
      </transition-group>
+    </div>
+    <div v-else>
+        <h2>Добавьте программы быстрого запуска кнопкой настроек!</h2>
     </div>
 </div>

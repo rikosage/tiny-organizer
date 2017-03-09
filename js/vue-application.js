@@ -38,6 +38,11 @@ var app = new Vue({
         setTimeout(() => {setMaxHeight()}, 30);
       }
     },
+    processes(){
+      if (setMaxHeight() < 5) {
+        setTimeout(() => {setMaxHeight()}, 100);
+      }
+    },
   },
   created: function(){
     instance = this;
@@ -45,10 +50,10 @@ var app = new Vue({
       instance.inPut.editorContent = result[0].content;
     });
     backend.load("settings-background").then(result => {
-      instance.settings.editor.background = result[0].color;
+      instance.settings.editor.background = result.length ? result[0].color : "white";
     });
     backend.load("settings-text-color").then(result => {
-      instance.settings.editor.textColor = result[0].color;
+      instance.settings.editor.textColor = result.length ? result[0].color : "black-text";
     });
     backend.load("process").then(result => {
       instance.processes = result;
@@ -62,7 +67,9 @@ var app = new Vue({
           {name: "Images", extensions: ['jpg', 'png', 'gif']},
         ];
       } else {
-        var filters = null;
+        var filters = [
+          {name: "Executable", extensions: ['*']},
+        ];
       }
 
       backend.selectFile(filters, (file) => {
@@ -86,6 +93,7 @@ var app = new Vue({
 
       backend.saveProcess(instance.inPut.newProcess, (result) => {
         instance.processes = result;
+        instance.inPut.newProcess = {};
       });
 
     },

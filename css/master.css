@@ -54,3 +54,31 @@ textarea#editor{
   opacity: 0;
   transform: translateY(30px);
 }
+
+.process-item .card .card-content{
+  padding: 0;
+}
+
+@media (min-width: 320px) and (max-width: 600px) {
+  .process-item .card{
+    height: 260px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 759px) {
+  .process-item .card{
+    height: 260px;
+  }
+}
+
+@media (min-width: 759px) and (max-width: 997px) {
+  .process-item .card{
+    height: 280px;
+  }
+}
+
+@media (min-width: 997px) {
+  .process-item .card{
+    height: 240px;
+  }
+}
