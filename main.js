@@ -71,8 +71,9 @@ global.backend = {
     });
   },
 
-  executeProcess: () => {
-    let executablePath = "/usr/games/gnome-mines &";
+  executeProcess: (process) => {
+    console.log(process.file);
+    let executablePath = process.file;
     child(executablePath, ["--incognito"], function(err, data) {
       if(err){
          console.error(err);

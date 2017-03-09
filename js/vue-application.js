@@ -13,7 +13,6 @@ var instance;
 var app = new Vue({
   el: '#vue-application',
   data: {
-    source: `${__dirname}/res/programs/04.jpg`,
     currentView: "editor",
     processes: [],
     settings: {
@@ -31,6 +30,13 @@ var app = new Vue({
         image: "",
         file: "",
       },
+    },
+  },
+  watch: {
+    currentView(){
+      if (setMaxHeight() < 5) {
+        setTimeout(() => {setMaxHeight()}, 30);
+      }
     },
   },
   created: function(){
@@ -90,6 +96,11 @@ var app = new Vue({
       });
     },
 
+    getProcessImage(process){
+      let folder = "./res/programs/";
+      return folder + process.image;
+    },
+
     writeEditor: () => {
       backend.update("editor", {content: instance.inPut.editorContent});
     },
@@ -104,8 +115,22 @@ var app = new Vue({
     prepareColor: (color) => {
       return color;
     },
-    executeProcess: () => {
-      backend.executeProcess();
+    executeProcess: (process) => {
+      backend.executeProcess(process);
     },
   },
 });
+
+function setMaxHeight()
+{
+  var max = 0;
+  $(".process-item").each((i, current) => {
+    var item = $(current).find(".card").find(".img-wrapper img");
+    if (item.height() > max) {
+      max = $(item).height();
+    };
+  });
+
+  $(".process-item").find(".card").find(".img-wrapper").height(max);
+  return max;
+}
