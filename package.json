@@ -6,7 +6,7 @@
   "scripts": {
     "start": "electron .",
     "build-linux": "electron-packager . tiny-organizer --platform=linux --arch=x64 --version=1.3.3 --icon=./res/icon.jpg",
-    "build-windows": "electron-packager . tiny-organizer --platform=win32 --arch=x64 --version=1.3.3",
+    "build-windows": "electron-packager . tiny-organizer --platform=win32 --arch=x64 --version=1.3.3 --icon=./res/icon.jpg",
     "test": "xo && test"
   },
   "author": "",

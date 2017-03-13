@@ -4,8 +4,8 @@ body{
 }
 
 textarea#editor{
-    min-height: 65vh;
-    max-height: 65vh;
+    min-height: 70vh;
+    max-height: 70vh;
     overflow: auto;
     font-size: 17px;
 }
@@ -55,25 +55,37 @@ textarea#editor{
   transform: translateY(30px);
 }
 
+.process-item{
+  background: transparent;
+}
+
 .process-item .card .card-content{
   padding: 0;
 }
 
+.process-item strong{
+  font-size: 14px;
+}
+
+.modal-content{
+  font-size: 0.9rem;
+}
+
 @media (min-width: 320px) and (max-width: 600px) {
   .process-item .card{
-    height: 260px;
+    height: 130px;
   }
 }
 
 @media (min-width: 600px) and (max-width: 759px) {
   .process-item .card{
-    height: 260px;
+    height: 160px;
   }
 }
 
 @media (min-width: 759px) and (max-width: 997px) {
   .process-item .card{
-    height: 280px;
+    height: 180px;
   }
 }
 
@@ -81,4 +93,17 @@ textarea#editor{
   .process-item .card{
     height: 240px;
   }
+}
+
+#copyright{
+    position: fixed;
+    left: 10px;
+    bottom: 0;
+    font-size: 12px;
+    color: #adadad;
+    cursor: pointer;
+}
+
+#copyright:hover{
+  color: #4e4e4e;
 }

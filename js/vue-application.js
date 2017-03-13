@@ -32,18 +32,6 @@ var app = new Vue({
       },
     },
   },
-  watch: {
-    currentView(){
-      if (setMaxHeight() < 5) {
-        setTimeout(() => {setMaxHeight()}, 30);
-      }
-    },
-    processes(){
-      if (setMaxHeight() < 5) {
-        setTimeout(() => {setMaxHeight()}, 100);
-      }
-    },
-  },
   created: function(){
     instance = this;
     backend.load('editor').then(result => {
@@ -124,21 +112,17 @@ var app = new Vue({
       return color;
     },
     executeProcess: (process) => {
-      backend.executeProcess(process);
+        try {
+            backend.executeProcess(process);
+            backend.initHide();
+        } catch (e) {
+           Materialize.toast("Не получается запустить программу!", 5000, "red lighten-3");
+        }
+
+    },
+    openGithub: (url) => {
+      backend.openExternalLink(url);
+      backend.initHide();
     },
   },
 });
-
-function setMaxHeight()
-{
-  var max = 0;
-  $(".process-item").each((i, current) => {
-    var item = $(current).find(".card").find(".img-wrapper img");
-    if (item.height() > max) {
-      max = $(item).height();
-    };
-  });
-
-  $(".process-item").find(".card").find(".img-wrapper").height(max);
-  return max;
-}

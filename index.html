@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Organizer</title>
+    <title>Tiny Organizer</title>
     <meta charset="utf-8"></meta>
     <script>window.$ = window.jQuery = require('jquery');</script>
     <script>window.Hammer = require('hammerjs');</script>
@@ -21,12 +21,16 @@
 </head>
 <body>
     <div class = "grey-blue lighten-5" id="vue-application" class = "row">
-
+        <div id="copyright" v-on:click="openGithub('https://github.com/rikosage')">
+            Created by Rikosage
+        </div>
     </div>
+
     <script src="lib/materialize/js/materialize.min.js"></script>
     <script type = "text/javascript">
       document.querySelectorAll('link[rel=import]').forEach((item) => {
           let content = item.import.querySelector("div[data-source=import]");
+          content.removeAttribute("data-source");
           document.querySelector("#vue-application").appendChild(content.cloneNode(true));
       });
     </script>

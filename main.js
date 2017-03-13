@@ -1,5 +1,6 @@
 const electron = require('electron')
-const {app, BrowserWindow, dialog, Tray, Menu} = electron;
+const {app, BrowserWindow, dialog, Tray, Menu, shell} = electron;
+const notifier = require("node-notifier");
 const windowStateKeeper = require('electron-window-state');
 var path = require('path');
 var fs = require("fs");
@@ -54,13 +55,22 @@ app.on('ready', function() {
 
   tray.setContextMenu(contextMenu);
 
+  tray.on("double-click", () => {
+    mainWindow.show();
+  })
+
+  tray.displayBalloon({
+    title: "Tiny Organizer",
+    content: "Я буду здесь, если понадоблюсь!",
+  });
+
   var size = null;
   var position = null;
 
   db.provider.find({alias:"window-size"})
 
   .then(result => {
-    size = result[0] ? result[0] : {width: 800, height: 600};
+    size = result[0] ? result[0] : {width: 240, height: 360};
     return db.provider.find({alias:"window-pos"});
   })
 
@@ -80,12 +90,12 @@ app.on('ready', function() {
 
     if (position) {
       mainWindow.setPosition(position.x, position.y);
-      console.log(mainWindow.getPosition());
     }
 
     mainWindow.loadURL(path.join(indexPage));
 
-    mainWindow.openDevTools()
+    //mainWindow.openDevTools();
+    //mainWindow.hide();
 
     mainWindow.on('minimize', (event) => {
       event.preventDefault()
@@ -141,10 +151,15 @@ global.backend = {
 
   executeProcess: (process) => {
     let executablePath = process.file;
+
     spawn(executablePath, [], {
       detached: true,
       stdio: 'ignore',
     });
+  },
+
+  openExternalLink: (url) => {
+    shell.openExternal(url);
   },
 
   saveProcess: (data, callback) => {
@@ -194,6 +209,10 @@ global.backend = {
         return callback(inserted);
       }
     });
+  },
+
+  initHide: () => {
+    mainWindow.hide();
   },
 };
 
