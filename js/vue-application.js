@@ -1,6 +1,8 @@
+// Подключаем API Электрона
 var backend = require('electron').remote.getGlobal("backend");
 
 $(document).ready(() => {
+  // Инициируем materialize
   $('ul.tabs').tabs({
     swipeable: true,
   });
@@ -8,13 +10,19 @@ $(document).ready(() => {
   $('.modal').modal();
 });
 
+// Через эту переменную мы сможем обращаться к компоненту Vue
 var instance;
 
 var app = new Vue({
   el: '#vue-application',
   data: {
+    // Отображаемое представление
     currentView: "editor",
+
+    // Список процессов для запуска
     processes: [],
+
+    // Настройки. Подгружаются при старте приложения
     settings: {
       editor: {
         background: null,
@@ -23,6 +31,7 @@ var app = new Vue({
       backgrounds: ClassColors.getBgColors(),
       textColors: ClassColors.getTextColors(),
     },
+    // В этом объекте храним пользовательский ввод с разных форм
     inPut: {
       editorContent: null,
       newProcess: {
@@ -34,6 +43,10 @@ var app = new Vue({
   },
   created: function(){
     instance = this;
+
+    /**
+     * Секция загрузки настроек
+     */
     backend.load('editor').then(result => {
       instance.inPut.editorContent = result[0].content;
     });
@@ -48,6 +61,7 @@ var app = new Vue({
     });
   },
   methods: {
+    // Запрашивает диалоговое окно выбора файлов на компьютере
     selectFile: (imagesOnly = false, attribute = 'file') => {
 
       if (imagesOnly) {
@@ -60,11 +74,13 @@ var app = new Vue({
         ];
       }
 
+      // Эмулируем работу v-model после выбора файла
       backend.selectFile(filters, (file) => {
         instance.inPut.newProcess[attribute] = file[0];
       });
     },
 
+    // Сохраняем новую ссылку на программу
     saveProcess: () => {
       if (!instance.inPut.newProcess.file.length) {
         alert("Файл не выбран");
@@ -92,14 +108,17 @@ var app = new Vue({
       });
     },
 
+    // Прослойка для определения пути к картинке процесса.
     getProcessImage(process){
       let folder = "./res/programs/";
       return folder + process.image;
     },
 
+    // Вызывается при каждом изменении содержимого редактора
     writeEditor: () => {
       backend.update("editor", {content: instance.inPut.editorContent});
     },
+
     setBackground: (color) => {
       backend.update("settings-background", {color: color});
       instance.settings.editor.background = color;
@@ -108,9 +127,12 @@ var app = new Vue({
       backend.update("settings-text-color", {color: color});
       instance.settings.editor.textColor = color;
     },
+
+    // Обертка для быстрого вызова массива доступных цветов
     prepareColor: (color) => {
       return color;
     },
+    // Запустить сторонний процесс
     executeProcess: (process) => {
         try {
             backend.executeProcess(process);
@@ -120,6 +142,7 @@ var app = new Vue({
         }
 
     },
+    // Ссылка на гитхаб разработчика
     openGithub: (url) => {
       backend.openExternalLink(url);
       backend.initHide();

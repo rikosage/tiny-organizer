@@ -1,18 +1,24 @@
 const electron = require('electron')
 const {app, BrowserWindow, dialog, Tray, Menu, shell} = electron;
-const notifier = require("node-notifier");
-const windowStateKeeper = require('electron-window-state');
+
 var path = require('path');
+
+// Файловая система
 var fs = require("fs");
+
+// Расширение для стороннего исполнение файлов.
 var spawn = require('child_process').spawn;
 
+// Быстрая БД
 var Datastore = require('nedb');
 var db = new Datastore({filename: 'database'});
+
 db.loadDatabase();
 
 var mainWindow;
 const indexPage = `file://${__dirname}/index.html`;
 
+// Обертка для использования поиска в БД с промисами.
 db.provider = {
   find(data){
     return new Promise((resolve, reject) => {
@@ -26,7 +32,7 @@ db.provider = {
   },
 };
 
-
+// Дарвину требуется явно указать, когда закрыть приложение
 app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -35,6 +41,7 @@ app.on('window-all-closed', function() {
 
 app.on('ready', function() {
 
+  // Системный трей
   tray = new Tray(`${__dirname}/res/icon.jpg`);
 
   var contextMenu = Menu.buildFromTemplate([
@@ -44,6 +51,8 @@ app.on('ready', function() {
         mainWindow.show()
       }
     },
+    // Выйти из программы можно только через это меню.
+    // Обычный крестик ее свернет
     {
       label: 'Выйти',
       click:  () => {
@@ -55,10 +64,12 @@ app.on('ready', function() {
 
   tray.setContextMenu(contextMenu);
 
+  // Работает только под Windows
   tray.on("double-click", () => {
     mainWindow.show();
   })
 
+  // Работает только под Windows. Всплывающее сообщение при старте.
   tray.displayBalloon({
     title: "Tiny Organizer",
     content: "Я буду здесь, если понадоблюсь!",
@@ -67,20 +78,22 @@ app.on('ready', function() {
   var size = null;
   var position = null;
 
+  // Определяем положение на экране и размеры
   db.provider.find({alias:"window-size"})
 
   .then(result => {
+    // Если пользователь изменял размер - это сохранено в базе. Установим последние значения
     size = result[0] ? result[0] : {width: 240, height: 360};
     return db.provider.find({alias:"window-pos"});
   })
 
   .then(result => {
+    // Если пользователь изменял положение на экране - возьмем сохраненное последнее значение
     position = result[0] ? result[0] : null;
     return true;
   })
 
   .then(() => {
-
     mainWindow = new BrowserWindow({
       width: size.width,
       height: size.height,
@@ -92,16 +105,19 @@ app.on('ready', function() {
       mainWindow.setPosition(position.x, position.y);
     }
 
+    // Отоюразим приложение внутри главного окна.
     mainWindow.loadURL(path.join(indexPage));
 
     //mainWindow.openDevTools();
     //mainWindow.hide();
 
+    // Скрываем в трей при сворачивании
     mainWindow.on('minimize', (event) => {
       event.preventDefault()
         mainWindow.hide();
     });
 
+    // Скрываем в трей при попытке закрытия
     mainWindow.on('close', (event) => {
       if( !app.isQuiting){
         event.preventDefault()
@@ -110,6 +126,7 @@ app.on('ready', function() {
       return false;
     });
 
+    // Если пользователь перемещает окно - запоминаем положение
     mainWindow.on("move", () => {
       var x = mainWindow.getPosition()[0];
       var y = mainWindow.getPosition()[1];
@@ -122,6 +139,7 @@ app.on('ready', function() {
       })
     });
 
+    // При изменении размеров окна - запомним размер
     mainWindow.on('resize', () => {
 
       var width = mainWindow.getSize()[0];
@@ -135,20 +153,24 @@ app.on('ready', function() {
       });
     })
   })
+  // Если что-то случилось - дропаем приложение
   .catch(err => {
     alert(err);
     process.exit();
   });
 });
 
+// Расшаренный объект, API для взаимодействия с фронтендом
 global.backend = {
 
+  // Инициирует открытие диалогового окна выбора файла.
   selectFile: (filters, callback) => {
     dialog.showOpenDialog({properties: ['openFile'], filters: filters}, (file) => {
       return callback(file);
     });
   },
 
+  // Запустим сторонний процесс в фоновом режиме, независимо от приложения
   executeProcess: (process) => {
     let executablePath = process.file;
 
@@ -158,14 +180,17 @@ global.backend = {
     });
   },
 
+  // Открытие адреса в стандартном браузере
   openExternalLink: (url) => {
     shell.openExternal(url);
   },
 
+  // Сохранение ссылки на процесс.
+  // TODO: Переписать на промисы.
   saveProcess: (data, callback) => {
-
     fs.readFile(data.image, (err, result) => {
       var extension = data.image.split(".").pop();
+      // В качестве имени файла юзаем рандомный guid
       var filePath = guid() + "." + extension;
       fs.writeFile(`${__dirname}/res/programs/` + filePath, result, (err) => {
         if (!err) {
@@ -180,6 +205,7 @@ global.backend = {
     });
   },
 
+  // Удаляем процесс из базы
   deleteProcess: (processItem, callback) => {
     db.remove({_id:processItem._id}, {}, () => {
       fs.unlink(`${__dirname}/res/programs/` + processItem.image, () => {
@@ -190,10 +216,12 @@ global.backend = {
     });
   },
 
+  // db.find для фронтенда
   load: (alias) => {
     return db.provider.find({alias: alias});
   },
 
+  // Обновить запись из фронтенда
   update: (alias, data) => {
     db.provider.find({alias: alias}).then(result => {
       if (!result.length) {
@@ -203,6 +231,7 @@ global.backend = {
     });
   },
 
+  // Вставить запись из фронтенда
   insert: (alias, data, callback) => {
     db.insert(Object.assign({alias:alias}, data), function(err, inserted){
       if (!err) {
@@ -211,11 +240,13 @@ global.backend = {
     });
   },
 
+  // Скрываем окно из фронтенда
   initHide: () => {
     mainWindow.hide();
   },
 };
 
+// Случайный GUID
 function guid() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)

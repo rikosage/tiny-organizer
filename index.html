@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="lib/materialize/css/materialize.min.css">
     <link rel="stylesheet" href="css/master.css">
 
+    <!-- Эти ссылки и скрипт ниже реализуют механизм сборщика -->
     <link rel="import" href="partial/header.html">
     <link rel="import" href="partial/settings.html">
 
@@ -27,6 +28,7 @@
     </div>
 
     <script src="lib/materialize/js/materialize.min.js"></script>
+    <!-- Скрипт для сборки всех файлов -->
     <script type = "text/javascript">
       document.querySelectorAll('link[rel=import]').forEach((item) => {
           let content = item.import.querySelector("div[data-source=import]");
