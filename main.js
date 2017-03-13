@@ -1,9 +1,9 @@
 const electron = require('electron')
-const {app, BrowserWindow, dialog} = electron;
+const {app, BrowserWindow, dialog, Tray, Menu} = electron;
 const windowStateKeeper = require('electron-window-state');
 var path = require('path');
 var fs = require("fs");
-var child = require('child_process').exec;
+var spawn = require('child_process').spawn;
 
 var Datastore = require('nedb');
 var db = new Datastore({filename: 'database'});
@@ -12,16 +12,6 @@ db.loadDatabase();
 var mainWindow;
 const indexPage = `file://${__dirname}/index.html`;
 
-function guid() {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000)
-      .toString(16)
-      .substring(1);
-  }
-  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-    s4() + '-' + s4() + s4() + s4();
-}
-
 app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -29,6 +19,28 @@ app.on('window-all-closed', function() {
 });
 
 app.on('ready', function() {
+
+  tray = new Tray(`${__dirname}/res/icon.jpg`);
+
+  var contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Показать',
+      click: () => {
+        mainWindow.show()
+      }
+    },
+    {
+      label: 'Выйти',
+      click:  () => {
+        app.isQuiting = true;
+        app.quit();
+      }
+    }
+  ]);
+
+
+  tray.setContextMenu(contextMenu);
+
   db.find({alias:"window"}, function(err, docs){
 
     let size = docs[0] ? docs[0] : {width: 800, height: 600};
@@ -42,8 +54,17 @@ app.on('ready', function() {
 
     mainWindow.openDevTools()
 
-    mainWindow.on('closed', function() {
-      mainWindow = null;
+    mainWindow.on('minimize',function(event){
+      event.preventDefault()
+        mainWindow.hide();
+    });
+
+    mainWindow.on('close', function (event) {
+      if( !app.isQuiting){
+        event.preventDefault()
+          mainWindow.hide();
+      }
+      return false;
     });
 
     mainWindow.on('resize', function(a){
@@ -74,11 +95,9 @@ global.backend = {
   executeProcess: (process) => {
     console.log(process.file);
     let executablePath = process.file;
-    child(executablePath, ["--incognito"], function(err, data) {
-      if(err){
-         console.error(err);
-         return;
-      }
+    spawn(executablePath, [], {
+      detached: true,
+      stdio: 'ignore',
     });
   },
 
@@ -86,7 +105,7 @@ global.backend = {
     fs.readFile(data.image, (err, result) => {
       var extension = data.image.split(".").pop();
       var filePath = guid() + "." + extension;
-      fs.writeFile("./res/programs/" + filePath, result, (err) => {
+      fs.writeFile(`${__dirname}/res/programs/` + filePath, result, (err) => {
         if (!err) {
           data.image = filePath;
           backend.insert("process", data, () => {
@@ -101,7 +120,7 @@ global.backend = {
 
   deleteProcess: (processItem, callback) => {
     db.remove({_id:processItem._id}, {}, () => {
-      fs.unlink("./res/programs/"+processItem.image, () => {
+      fs.unlink(`${__dirname}/res/programs/` + processItem.image, () => {
         return backend.load("process").then(result => {
           callback(result);
         });
@@ -142,3 +161,14 @@ global.backend = {
     });
   },
 };
+
+
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
+}
