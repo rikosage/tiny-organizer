@@ -12,6 +12,20 @@ db.loadDatabase();
 var mainWindow;
 const indexPage = `file://${__dirname}/index.html`;
 
+db.provider = {
+  find(data){
+    return new Promise((resolve, reject) => {
+      db.find(data, (err, docs) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(docs);
+      });
+    });
+  },
+};
+
+
 app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') {
     app.quit();
@@ -38,28 +52,47 @@ app.on('ready', function() {
     }
   ]);
 
-
   tray.setContextMenu(contextMenu);
 
-  db.find({alias:"window"}, function(err, docs){
+  var size = null;
+  var position = null;
 
-    let size = docs[0] ? docs[0] : {width: 800, height: 600};
+  db.provider.find({alias:"window-size"})
+
+  .then(result => {
+    size = result[0] ? result[0] : {width: 800, height: 600};
+    return db.provider.find({alias:"window-pos"});
+  })
+
+  .then(result => {
+    position = result[0] ? result[0] : null;
+    return true;
+  })
+
+  .then(() => {
 
     mainWindow = new BrowserWindow({
       width: size.width,
       height: size.height,
+      maximizable: false,
+      icon: `${__dirname}/res/icon.jpg`,
     });
+
+    if (position) {
+      mainWindow.setPosition(position.x, position.y);
+      console.log(mainWindow.getPosition());
+    }
 
     mainWindow.loadURL(path.join(indexPage));
 
     mainWindow.openDevTools()
 
-    mainWindow.on('minimize',function(event){
+    mainWindow.on('minimize', (event) => {
       event.preventDefault()
         mainWindow.hide();
     });
 
-    mainWindow.on('close', function (event) {
+    mainWindow.on('close', (event) => {
       if( !app.isQuiting){
         event.preventDefault()
           mainWindow.hide();
@@ -67,20 +100,34 @@ app.on('ready', function() {
       return false;
     });
 
-    mainWindow.on('resize', function(a){
+    mainWindow.on("move", () => {
+      var x = mainWindow.getPosition()[0];
+      var y = mainWindow.getPosition()[1];
+
+      db.provider.find({alias: "window-pos"}).then(result => {
+        if (!result.length) {
+            db.insert({alias: 'window-pos', x:0, y: 0});
+        }
+        db.update({alias: 'window-pos'}, {alias: 'window-pos', x:x, y:y});
+      })
+    });
+
+    mainWindow.on('resize', () => {
 
       var width = mainWindow.getSize()[0];
       var height = mainWindow.getSize()[1];
 
-      db.find({alias:"window"}, function(err, docs){
-        if (!docs.length) {
-          db.insert({alias:"window", width:0, height: 0})
-          db.update({alias:"window"}, {alias:"window", width:width, height:height});
-        } else {
-          db.update({alias:"window"}, {alias:"window", width:width, height:height});
+      db.provider.find({alias: "window-size"}).then(result => {
+        if (!result.length) {
+          db.insert({alias:"window-size", width:0, height: 0})
         }
-      })
+        db.update({alias:"window-size"}, {alias:"window-size", width:width, height:height});
+      });
     })
+  })
+  .catch(err => {
+    alert(err);
+    process.exit();
   });
 });
 
@@ -93,7 +140,6 @@ global.backend = {
   },
 
   executeProcess: (process) => {
-    console.log(process.file);
     let executablePath = process.file;
     spawn(executablePath, [], {
       detached: true,
@@ -102,6 +148,7 @@ global.backend = {
   },
 
   saveProcess: (data, callback) => {
+
     fs.readFile(data.image, (err, result) => {
       var extension = data.image.split(".").pop();
       var filePath = guid() + "." + extension;
@@ -129,28 +176,16 @@ global.backend = {
   },
 
   load: (alias) => {
-    return new Promise((resolve, reject) => {
-      db.find({alias: alias}, function (err, docs) {
-         if (alias == "editor" && !docs.length) {
-          db.insert({alias:alias, content:""});
-          return global.backend.load(alias);
-         }
-
-  	     resolve(docs);
-      });
-    });
-
+    return db.provider.find({alias: alias});
   },
 
   update: (alias, data) => {
-    db.find({alias:alias}, function(err, docs){
-      if (!docs.length) {
+    db.provider.find({alias: alias}).then(result => {
+      if (!result.length) {
         db.insert({alias:alias, content:0})
-        db.update({alias: alias}, Object.assign({alias:alias}, data));
-      } else {
-        db.update({alias: alias}, Object.assign({alias:alias}, data));
       }
-    })
+      db.update({alias: alias}, Object.assign({alias:alias}, data));
+    });
   },
 
   insert: (alias, data, callback) => {
@@ -161,7 +196,6 @@ global.backend = {
     });
   },
 };
-
 
 function guid() {
   function s4() {
