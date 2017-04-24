@@ -108,7 +108,7 @@ app.on('ready', function() {
     // Отоюразим приложение внутри главного окна.
     mainWindow.loadURL(path.join(indexPage));
 
-    mainWindow.openDevTools();
+    //mainWindow.openDevTools();
     //mainWindow.hide();
 
     // Скрываем в трей при сворачивании
