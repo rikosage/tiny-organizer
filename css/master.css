@@ -1,0 +1,109 @@
+body{
+    width: 100%;
+    overflow: hidden;
+}
+
+textarea#editor{
+    min-height: 70vh;
+    max-height: 70vh;
+    overflow: auto;
+    font-size: 17px;
+}
+
+#vue-application{
+    height: 100vh;
+    overflow: hidden;
+}
+
+.content{
+    height: 75vh;
+    overflow: auto;
+}
+
+.settings-color-item .collection-item{
+    margin: 5px 0;
+    cursor: pointer;
+}
+
+.settings-color-item .collection-item.action{
+    text-decoration: underline;
+    font-size: 1.3em;
+    margin: 15px 0;
+}
+
+.input-field.non-margin-top{
+    margin-top: 0;
+}
+
+.card{
+    cursor: pointer;
+}
+
+#modal-new-process .col.s12.hoverable{
+    cursor: pointer;
+}
+
+.col.delete-process{
+    padding: 0;
+}
+
+.list-enter-active, .list-leave-active {
+  transition: all 1s;
+}
+.list-enter, .list-leave-to /* .list-leave-active для <2.1.8 */ {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.process-item{
+  background: transparent;
+}
+
+.process-item .card .card-content{
+  padding: 0;
+}
+
+.process-item strong{
+  font-size: 14px;
+}
+
+.modal-content{
+  font-size: 0.9rem;
+}
+
+@media (min-width: 320px) and (max-width: 600px) {
+  .process-item .card{
+    height: 130px;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 759px) {
+  .process-item .card{
+    height: 160px;
+  }
+}
+
+@media (min-width: 759px) and (max-width: 997px) {
+  .process-item .card{
+    height: 180px;
+  }
+}
+
+@media (min-width: 997px) {
+  .process-item .card{
+    height: 240px;
+  }
+}
+
+#copyright{
+    position: fixed;
+    left: 10px;
+    bottom: 0;
+    font-size: 12px;
+    color: #adadad;
+    cursor: pointer;
+}
+
+#copyright:hover{
+  color: #4e4e4e;
+}
