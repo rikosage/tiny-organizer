@@ -62,9 +62,6 @@ app.on('window-all-closed', () => {
 
 app.on('ready', () => {
 
-  // Стартуем со скрытого состояния. На винде предупредит тултипом о своем существовании 
-  mainWindow.hide();
-
   // Сворачиваем окно при нажатии на ESC
   globalShortcut.register("ESC", () => {
     mainWindow.hide();
@@ -129,6 +126,8 @@ app.on('ready', () => {
       maximizable: false,
       icon: `${__dirname}/res/icon.jpg`,
     });
+
+    mainWindow.hide();
 
     if (position) {
       mainWindow.setPosition(position.x, position.y);
