@@ -32,6 +32,22 @@ db.provider = {
   },
 };
 
+var shouldQuit = app.makeSingleInstance(function (commandLine, workingDirectory) {
+  if (commandLine.indexOf("-t") !== -1) {
+    if (mainWindow.isVisible()) {
+      mainWindow.hide();
+    } else {
+      mainWindow.show();
+    }
+    console.log(mainWindow.isVisible());
+  }
+});
+
+if (shouldQuit) {
+    app.quit();
+    return;
+}
+
 // Дарвину требуется явно указать, когда закрыть приложение
 app.on('window-all-closed', function() {
   if (process.platform !== 'darwin') {

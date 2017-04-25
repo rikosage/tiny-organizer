@@ -26,6 +26,7 @@
   "dependencies": {
     "electron-window-state": "^4.0.2",
     "hammerjs": "^2.0.8",
-    "jquery": "^3.2.1"
+    "jquery": "^3.2.1",
+    "nedb": "^1.8.0"
   }
 }
