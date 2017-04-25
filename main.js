@@ -62,11 +62,6 @@ app.on('window-all-closed', () => {
 
 app.on('ready', () => {
 
-  // Сворачиваем окно при нажатии на ESC
-  globalShortcut.register("ESC", () => {
-    mainWindow.hide();
-  });
-
   // Системный трей
   tray = new Tray(`${__dirname}/res/icon.jpg`);
 
@@ -92,6 +87,7 @@ app.on('ready', () => {
 
   // Работает только под Windows
   tray.on("double-click", () => {
+
     mainWindow.show();
   })
 
@@ -152,6 +148,19 @@ app.on('ready', () => {
           mainWindow.hide();
       }
       return false;
+    });
+
+    // Регистрирует перехватчик клавиши ESC каждый раз,
+    // когда окно становится видимым
+    mainWindow.on("show", () => {
+      globalShortcut.register("ESC", () => {
+        mainWindow.hide();
+      });
+    })
+
+    // Разрегистрирует перехватчик ESC при скрытии окна
+    mainWindow.on("hide", () => {
+      globalShortcut.unregister("ESC");
     });
 
     // Если пользователь перемещает окно - запоминаем положение
