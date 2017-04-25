@@ -11,7 +11,7 @@ var spawn = require('child_process').spawn;
 
 // Быстрая БД
 var Datastore = require('nedb');
-var db = new Datastore({filename: 'database'});
+var db = new Datastore({filename: `${__dirname}/database`});
 
 db.loadDatabase();
 
