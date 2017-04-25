@@ -1,5 +1,5 @@
 const electron = require('electron')
-const {app, BrowserWindow, dialog, Tray, Menu, shell} = electron;
+const {app, BrowserWindow, dialog, Tray, Menu, shell, globalShortcut} = electron;
 
 var path = require('path');
 
@@ -32,30 +32,43 @@ db.provider = {
   },
 };
 
+// Гарантируем запуск в единственном экземпляре.
 var shouldQuit = app.makeSingleInstance(function (commandLine, workingDirectory) {
-  if (commandLine.indexOf("-t") !== -1) {
+
+  // Можно запускать программу с флагом (-t), чтобы менять видимость окна
+  if (commandLine.indexOf("-t") === -1) {
+    mainWindow.show();
+  } else {
     if (mainWindow.isVisible()) {
-      mainWindow.hide();
+      mainWindow.hide()
     } else {
       mainWindow.show();
     }
-    console.log(mainWindow.isVisible());
   }
 });
 
+// Завершаем работу приложения, если уже существует запущенная версия.
 if (shouldQuit) {
     app.quit();
     return;
 }
 
 // Дарвину требуется явно указать, когда закрыть приложение
-app.on('window-all-closed', function() {
+app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 
-app.on('ready', function() {
+app.on('ready', () => {
+
+  // Стартуем со скрытого состояния. На винде предупредит тултипом о своем существовании 
+  mainWindow.hide();
+
+  // Сворачиваем окно при нажатии на ESC
+  globalShortcut.register("ESC", () => {
+    mainWindow.hide();
+  });
 
   // Системный трей
   tray = new Tray(`${__dirname}/res/icon.jpg`);
